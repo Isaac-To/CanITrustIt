@@ -1,4 +1,5 @@
 import flask
+import os
 import regex as re
 
 import asyncio
@@ -12,6 +13,7 @@ import tensorflow as tf
 OPINION_DB = "./user_entry_db/opinion.csv"
 
 app = flask.Flask(__name__)
+app.secret_key = os.urandom(12)
 
 async def process(title, text):
     flask.session["focus_title"] = title
@@ -125,6 +127,4 @@ async def opinion():
 
 
 if __name__=="__main__":
-    import os
-    app.secret_key = os.urandom(12)
     app.run(debug=False)
