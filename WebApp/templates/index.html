@@ -1,0 +1,105 @@
+{% extends 'base.html' %} {% block content %}
+<div
+  class="mx-auto w-75 h-100 d-flex align-items-center justify-content-center"
+>
+  <div>
+    <h1 class="text-center display-2 font-weight-bolder">{{ brand() }}</h1>
+    <h2 class="text-center my-3 text-body-secondary">
+      The modern way to surf <span class="gradient emphasis">smarter</span>
+    </h2>
+    <div class="card">
+      <div class="card-body">
+        <form action="/check" , method="POST">
+          <h5 class="card-subtitle">Automated Checker</h5>
+          <p class="card-text">
+            Check this URL:
+            <input
+              type="text"
+              name="url"
+              class="form-control"
+              placeholder="https://web.site"
+            />
+          </p>
+          <hr />
+          <h5 class="card-subtitle">Or manually</h5>
+          <p class="card-text">
+            Title:
+            <input
+              type="text"
+              name="title"
+              class="form-control"
+              placeholder="What is the biggest most eye catching thing on the top of the website?"
+            />
+          </p>
+          <p class="card-text">
+            Contents:
+            <textarea
+              name="content"
+              class="form-control"
+              placeholder="The main thing you read..."
+            ></textarea>
+          </p>
+          <input
+            type="submit"
+            value="Check this out"
+            class="btn btn-primary w-100"
+          />
+          <br />
+          <br />
+          <small class="card-text"
+            ><b>Disclaimer</b><br />The results from this site are generated
+            through texual analysis with an artificial intelligence model. Fact
+            checks are not performed. The quality of the scoring may be varied
+            and in contrast of opinion. All data shared on this website may be
+            collected for product improvement. Do not disclose any personal
+            information.</small
+          >
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="w-75 mx-auto card mb-5">
+  <div class="card-body">
+    <h2 class="card-title">
+      A mission to <span class="gradient emphasis">improve</span> the web
+    </h2>
+    <p class="card-text">
+      A new neural network trained on a diverse collection of over 13K examples
+      of news articles both reliable and unreliable, trained to identify the
+      trust worthiness of a site with an accuracy of over 95%.
+    </p>
+    <p>
+      I created this project to help improve people's access to high quality
+      media without the biases of fake news and unreliable sources by
+      identifying key patterns and vocabulary usages and comparing it against
+      genuine articles that you would want to read.
+    </p>
+    <p>
+      Just putting this forward but as an artificial intelligence based tool, it
+      is prone to errors and shortcomings that are inexplainable. Things like
+      trust worthy sources may sometimes be flagged as non trustworthy and vice
+      versa. The model isn't perfect, in fact, what counts as unreliable news
+      and reliable is unique to each person, thus making this task extremely
+      difficult to perfect.
+    </p>
+    <p>
+      To that end, be patient and let me know when things go wrong. I'm working
+      on improving the quality of data and the training process to iron out
+      things to the best of my ability.
+    </p>
+    <h5>Designed for:</h5>
+    <ul>
+      <li>Political</li>
+      <li>Economic</li>
+      <li>Events</li>
+    </ul>
+    <h5 class="card-subtitle">Out of specification</h5>
+    <ul>
+      <li>Technology</li>
+      <li>Documentation or research</li>
+      <li>...</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
