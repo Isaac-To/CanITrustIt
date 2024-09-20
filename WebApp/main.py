@@ -23,7 +23,7 @@ async def process(title, text):
     if len(text.split()) < 24:
         # Not enough words to make a conclusion
         return flask.render_template("failed.html", message="We don't support dynamically generated web pages, enter the title and content manually")
-    model = tf_keras.models.load_model("../NLP/model/model_v2.keras")
+    model = tf_keras.models.load_model("NLP/model/model_v2.keras")
     result = model.predict([final_content])[0][0]
     score = round((1-result) * 100)
     if score > 70:

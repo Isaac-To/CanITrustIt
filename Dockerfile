@@ -10,6 +10,4 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
 
-WORKDIR /CanITrustIt/WebApp
-
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "main:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "WebApp.main:app"]
