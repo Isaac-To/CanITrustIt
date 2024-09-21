@@ -4,26 +4,31 @@ import regex as re
 
 import asyncio
 import aiohttp
+import nh3
 
 import bs4
 
 import tf_keras
 import tensorflow as tf
 
-OPINION_DB = "./user_entry_db/opinion.csv"
+OPINION_DB = "./db/opinion.csv"
+MODEL = "NLP/model/model_v2.0.keras"
+
+RE_URL = re.compile(r"http[s]?://[A-Za-z][A-Za-z0-9.]*/[A-Za-z0-9/#-_.?=&:]*")
+RE_WHITESPACE = re.compile(r"[\r\n\t\h]+")
 
 app = flask.Flask(__name__)
 app.secret_key = os.urandom(12)
 
-async def process(title, text):
-    flask.session["focus_title"] = title
-    flask.session["focus_text"] = text
+def normalize_str(string):
+    return RE_WHITESPACE.sub(" ", string).strip()
 
+async def process(title, text):
     final_content = ["[TITLE]" + title + "[TEXT]" + text]
     if len(text.split()) < 24:
         # Not enough words to make a conclusion
         return flask.render_template("failed.html", message="We don't support dynamically generated web pages, enter the title and content manually")
-    model = tf_keras.models.load_model("NLP/model/model_v2.keras")
+    model = tf_keras.models.load_model(MODEL)
     result = model.predict([final_content])[0][0]
     score = round((1-result) * 100)
     if score > 70:
@@ -43,27 +48,31 @@ async def check():
         return flask.redirect("/", code=302)
     url = flask.request.form.get("url")
     if url:
-        if re.fullmatch(r"http[s]?:\/\/[A-Za-z][A-Za-z0-9\.]*\/[A-Za-z0-9\/#\-_\.?=&:]*", url):
+        if RE_URL.fullmatch(url):
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
             }
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, headers=headers) as resp:
                     rawHTML = await resp.content.read()
+            rawHTML = nh3.clean(rawHTML.decode("utf-8")) # Clean the HTML
+            print(rawHTML)
             soup = bs4.BeautifulSoup(rawHTML, "html.parser")
             
-            title = soup.find("title").string
+            title = soup.find("title")
             if not title:
-                title = soup.find(class_="display-title").string
+                title = soup.find(class_="display-title")
             if not title:
-                title = soup.find(class_="title").string
+                title = soup.find(class_="title")
             if not title:
-                title = soup.find("h1").string
-            if not title:
+                title = soup.find("h1")
+            # If one of the above
+            if title:
+                title = title.string.strip()
+            else:
                 title = url
                 title.replace("https://", "")
                 title.replace("http://,", "")
-            title = title.strip()
             article = soup.find("article") # MOST PROPERLY FORMATTED SITES
             if not article:
                 article = soup
@@ -110,21 +119,32 @@ async def check():
 async def opinion():
     if flask.request.method == "GET":
         return flask.redirect("/", code=302)
-    title = flask.session.get("focus_title")
-    text = flask.session.get("focus_text")
+    title = flask.request.form.get("opinion_title")
+    text = flask.request.form.get("opinion_content")
     score = flask.request.form.get("opinion_score")
     explaination = flask.request.form.get("opinion_explaination")
-    if score == None or explaination == None:
-        score = 50
-        explaination = ""
+    if title == None:
+        return flask.render_template("failed.html", message="Missing title")
+    if text == None:
+        return flask.render_template("failed.html", message="Missing text")
+    if score == None:
+        score == 50 # User is assumed ambivalent
     else:
         score = int(score)
-    entry = f"\n{title},\"{text}\",{score / 100},\"{explaination}\""
+    if explaination == None:
+        explaination = "" # As it is optional
+    entry = nh3.clean(f"\n{normalize_str(title)},\"{normalize_str(text)}\",{1 - (score / 100)},\"{normalize_str(explaination)}\"")
+    try:
+        os.makedirs(OPINION_DB[:OPINION_DB.rfind("/")])
+        with open(OPINION_DB, "w") as f:
+            f.write(",title,text,label,explanation")
+            f.close()
+    except:
+        pass
     with open(OPINION_DB, "a") as f:
         f.write(entry)
         f.close()
-    return flask.render_template("successful.html")
-
+    return flask.render_template("successful.html", message="Submitted Opinion")
 
 if __name__=="__main__":
     app.run(debug=False)
