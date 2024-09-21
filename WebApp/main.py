@@ -68,8 +68,10 @@ async def check():
                 title = soup.find("h1")
             # If one of the above
             if title:
-                title = title.string.strip()
-            else:
+                title = title.string
+                if title:
+                    title = title.strip()
+            if not title:
                 title = url
                 title.replace("https://", "")
                 title.replace("http://,", "")
