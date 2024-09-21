@@ -56,7 +56,7 @@ async def check():
                 async with session.get(url, headers=headers) as resp:
                     rawHTML = await resp.content.read()
             rawHTML = nh3.clean(rawHTML.decode("utf-8")) # Clean the HTML
-            print(rawHTML)
+            # print(rawHTML)
             soup = bs4.BeautifulSoup(rawHTML, "html.parser")
             
             title = soup.find("title")
